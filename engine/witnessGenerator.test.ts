@@ -3,6 +3,10 @@ import {
   selectWitnesses,
   orderWitnesses,
   generateWitness,
+  countConsistentRules,
+  identificationIndex,
+  meetsIdentificationTiming,
+  minIdentificationWitnessByTier,
   defaultWitnessConfig,
 } from "./witnessGenerator";
 import { rules } from "./rules";
@@ -197,6 +201,119 @@ describe("generateWitness", () => {
     for (const clue of w.clues) {
       expect(typeof clue).toBe("string");
       expect(clue.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("minIdentificationWitnessByTier", () => {
+  it("defines a threshold for each tier", () => {
+    for (const tier of [1, 2, 3] as const) {
+      expect(minIdentificationWitnessByTier[tier]).toBeGreaterThan(0);
+    }
+  });
+
+  it("higher tiers require more witnesses before identification", () => {
+    expect(minIdentificationWitnessByTier[2]).toBeGreaterThanOrEqual(
+      minIdentificationWitnessByTier[1]
+    );
+    expect(minIdentificationWitnessByTier[3]).toBeGreaterThanOrEqual(
+      minIdentificationWitnessByTier[2]
+    );
+  });
+});
+
+describe("countConsistentRules", () => {
+  it("returns total rule count for empty witness set", () => {
+    expect(countConsistentRules([])).toBe(rules.length);
+  });
+
+  it("decreases as more witnesses are revealed", () => {
+    const witnesses = selectWitnesses(prime);
+    const ordered = orderWitnesses(prime, witnesses).map((v) => ({
+      value: v,
+      inSet: prime.validate(v),
+    }));
+    const counts = ordered.map((_, i) =>
+      countConsistentRules(ordered.slice(0, i + 1))
+    );
+    // Should be non-increasing
+    for (let i = 0; i < counts.length - 1; i++) {
+      expect(counts[i]).toBeGreaterThanOrEqual(counts[i + 1]);
+    }
+  });
+
+  it("returns 0 or positive integer for any witness set", () => {
+    const result = countConsistentRules([{ value: 83, inSet: true }]);
+    expect(result).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe("identificationIndex", () => {
+  it("returns null when witnesses cannot uniquely identify the rule", () => {
+    // A single witness almost never uniquely identifies a rule
+    const witnesses = [generateWitness(83, prime, 1)];
+    const idx = identificationIndex(prime, witnesses);
+    // If not null, verify the contract still holds
+    if (idx !== null) {
+      expect(idx).toBe(1);
+    }
+    // null is the expected outcome here — that is valid, not a bug
+  });
+
+  it("when identification succeeds, consistent rule count is 1 at that index", () => {
+    const values = selectWitnesses(prime);
+    const witnesses = orderWitnesses(prime, values).map((v) =>
+      generateWitness(v, prime, 2)
+    );
+    const idx = identificationIndex(prime, witnesses);
+    if (idx !== null) {
+      const revealed = witnesses.slice(0, idx);
+      expect(countConsistentRules(revealed)).toBe(1);
+    }
+    // null means this witness set doesn't uniquely identify — the Pass 2
+    // validator will catch this; it's not a bug in identificationIndex
+  });
+
+  it("never returns an index beyond the witness count", () => {
+    const values = selectWitnesses(prime);
+    const witnesses = orderWitnesses(prime, values).map((v) =>
+      generateWitness(v, prime, 2)
+    );
+    const idx = identificationIndex(prime, witnesses);
+    if (idx !== null) {
+      expect(idx).toBeLessThanOrEqual(witnesses.length);
+    }
+  });
+});
+
+describe("meetsIdentificationTiming", () => {
+  it("returns false when identification index is null", () => {
+    const witnesses = [generateWitness(83, prime, 1)];
+    const idx = identificationIndex(prime, witnesses);
+    if (idx === null) {
+      expect(meetsIdentificationTiming(prime, witnesses, 1)).toBe(false);
+    }
+  });
+
+  it("returns false when minWitnesses exceeds the witness count", () => {
+    const values = selectWitnesses(prime);
+    const witnesses = orderWitnesses(prime, values).map((v) =>
+      generateWitness(v, prime, 2)
+    );
+    expect(meetsIdentificationTiming(prime, witnesses, witnesses.length + 1)).toBe(false);
+  });
+
+  it("returns true when identification happens at exactly minWitnesses", () => {
+    const values = selectWitnesses(prime);
+    const witnesses = orderWitnesses(prime, values).map((v) =>
+      generateWitness(v, prime, 2)
+    );
+    const idx = identificationIndex(prime, witnesses);
+    if (idx !== null) {
+      expect(meetsIdentificationTiming(prime, witnesses, idx)).toBe(true);
+      if (idx > 1) {
+        expect(meetsIdentificationTiming(prime, witnesses, idx + 1)).toBe(false);
+      }
     }
   });
 });

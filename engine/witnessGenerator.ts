@@ -49,6 +49,43 @@ export function generateWitness(
   return { value, inSet: rule.validate(value), clues };
 }
 
+export const minIdentificationWitnessByTier: Record<1 | 2 | 3, number> = {
+  1: 2,
+  2: 3,
+  3: 4,
+};
+
+export function countConsistentRules(
+  witnesses: Array<{ value: number; inSet: boolean }>
+): number {
+  return rules.filter((r) => witnesses.every((w) => r.validate(w.value) === w.inSet)).length;
+}
+
+export function identificationIndex(
+  rule: Rule,
+  orderedWitnesses: Witness[]
+): number | null {
+  for (let k = 1; k <= orderedWitnesses.length; k++) {
+    const revealed = orderedWitnesses.slice(0, k);
+    if (countConsistentRules(revealed) === 1) {
+      const consistent = rules.find((r) =>
+        revealed.every((w) => r.validate(w.value) === w.inSet)
+      );
+      if (consistent?.id === rule.id) return k;
+    }
+  }
+  return null;
+}
+
+export function meetsIdentificationTiming(
+  rule: Rule,
+  orderedWitnesses: Witness[],
+  minWitnesses: number
+): boolean {
+  const idx = identificationIndex(rule, orderedWitnesses);
+  return idx !== null && idx >= minWitnesses;
+}
+
 export function selectWitnesses(
   rule: Rule,
   config: WitnessConfig = defaultWitnessConfig
