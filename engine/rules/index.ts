@@ -1,4 +1,5 @@
 import { tier1Rules } from "./tier1";
+import { tier2Rules } from "./tier2";
 
 export interface Rule {
   id: string;
@@ -7,4 +8,4 @@ export interface Rule {
   validate: (n: number) => boolean;
 }
 
-export const rules: Rule[] = [...tier1Rules];
+export const rules: Rule[] = [...tier1Rules, ...tier2Rules];
