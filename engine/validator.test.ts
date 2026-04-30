@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { validateWitness, assertValidWitness, validateRule, assertValidRule } from "./validator";
+import {
+  validateWitness,
+  assertValidWitness,
+  validateRule,
+  assertValidRule,
+  enumerateConsistentRules,
+} from "./validator";
 import { generateClueSequence, clueCountByTier, cluesFor } from "./clueEngine";
 import { selectWitnesses, orderWitnesses } from "./witnessGenerator";
 import { rules } from "./rules";
@@ -127,6 +133,52 @@ describe("validateRule", () => {
     const result = validateRule(witnesses, prime);
     if (result.valid) {
       expect(result.reason).toBeUndefined();
+    }
+  });
+});
+
+describe("enumerateConsistentRules", () => {
+  it("returns all rules for an empty witness set", () => {
+    const consistent = enumerateConsistentRules([]);
+    expect(consistent.length).toBe(rules.length);
+  });
+
+  it("always includes the target rule when witnesses are truthful", () => {
+    const witnesses = [{ value: 83, inSet: prime.validate(83) }];
+    const consistent = enumerateConsistentRules(witnesses);
+    expect(consistent.some((r) => r.id === prime.id)).toBe(true);
+  });
+
+  it("returns an empty array for contradictory witnesses", () => {
+    const witnesses = [
+      { value: 83, inSet: true },
+      { value: 83, inSet: false },
+    ];
+    expect(enumerateConsistentRules(witnesses)).toHaveLength(0);
+  });
+
+  it("count is non-increasing as more witnesses are added", () => {
+    const values = selectWitnesses(prime);
+    const witnesses = orderWitnesses(prime, values).map((v) => ({
+      value: v,
+      inSet: prime.validate(v),
+    }));
+    let prev = rules.length;
+    for (let k = 1; k <= witnesses.length; k++) {
+      const count = enumerateConsistentRules(witnesses.slice(0, k)).length;
+      expect(count).toBeLessThanOrEqual(prev);
+      prev = count;
+    }
+  });
+
+  it("every returned rule correctly predicts all witness memberships", () => {
+    const witnesses = [
+      { value: 83, inSet: true },
+      { value: 84, inSet: false },
+    ];
+    for (const rule of enumerateConsistentRules(witnesses)) {
+      expect(rule.validate(83)).toBe(true);
+      expect(rule.validate(84)).toBe(false);
     }
   });
 });

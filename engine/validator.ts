@@ -60,13 +60,17 @@ export interface RuleValidationResult {
   reason?: RuleValidationFailureReason;
 }
 
+export function enumerateConsistentRules(
+  witnesses: Array<{ value: number; inSet: boolean }>
+): Rule[] {
+  return rules.filter((r) => witnesses.every((w) => r.validate(w.value) === w.inSet));
+}
+
 export function validateRule(
   witnesses: Array<{ value: number; inSet: boolean }>,
   targetRule: Rule
 ): RuleValidationResult {
-  const matchingRules = rules.filter((r) =>
-    witnesses.every((w) => r.validate(w.value) === w.inSet)
-  );
+  const matchingRules = enumerateConsistentRules(witnesses);
 
   if (matchingRules.length === 1 && matchingRules[0].id === targetRule.id) {
     return { valid: true, matchingRules };
