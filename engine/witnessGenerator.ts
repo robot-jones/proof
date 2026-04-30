@@ -1,4 +1,5 @@
 import { MAX } from "./numberRegistry";
+import { rules } from "./rules";
 import type { Rule } from "./rules";
 
 const allNumbers = Array.from({ length: MAX }, (_, i) => i + 1);
@@ -18,6 +19,16 @@ function sampleEvenly(pool: number[], n: number): number[] {
   if (pool.length <= n) return [...pool];
   const step = pool.length / n;
   return Array.from({ length: n }, (_, i) => pool[Math.floor(i * step + step / 2)]);
+}
+
+export function orderWitnesses(rule: Rule, witnesses: number[]): number[] {
+  return [...witnesses].sort((a, b) => {
+    const inSetA = rule.validate(a);
+    const inSetB = rule.validate(b);
+    const consistentA = rules.filter((r) => r.validate(a) === inSetA).length;
+    const consistentB = rules.filter((r) => r.validate(b) === inSetB).length;
+    return consistentB - consistentA; // descending: most ambiguous first
+  });
 }
 
 export function selectWitnesses(

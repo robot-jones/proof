@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { selectWitnesses, defaultWitnessConfig } from "./witnessGenerator";
+import { selectWitnesses, orderWitnesses, defaultWitnessConfig } from "./witnessGenerator";
+import { rules } from "./rules";
 import { tier1Rules } from "./rules/tier1";
 import { tier2Rules } from "./rules/tier2";
 import { tier3Rules } from "./rules/tier3";
@@ -70,5 +71,54 @@ describe("selectWitnesses", () => {
     const outSet = witnesses.filter((n) => !fibonacci.validate(n));
     expect(inSet.every((n) => fibonacci.validate(n))).toBe(true);
     expect(outSet.every((n) => !fibonacci.validate(n))).toBe(true);
+  });
+});
+
+function consistentRuleCount(n: number, inSet: boolean): number {
+  return rules.filter((r) => r.validate(n) === inSet).length;
+}
+
+describe("orderWitnesses", () => {
+  it("returns all the same witnesses", () => {
+    const witnesses = selectWitnesses(prime);
+    const ordered = orderWitnesses(prime, witnesses);
+    expect(ordered.slice().sort()).toEqual(witnesses.slice().sort());
+  });
+
+  it("first witness is at least as ambiguous as the last", () => {
+    const witnesses = selectWitnesses(prime);
+    const ordered = orderWitnesses(prime, witnesses);
+    const first = ordered[0];
+    const last = ordered[ordered.length - 1];
+    const firstCount = consistentRuleCount(first, prime.validate(first));
+    const lastCount = consistentRuleCount(last, prime.validate(last));
+    expect(firstCount).toBeGreaterThanOrEqual(lastCount);
+  });
+
+  it("consistent rule counts are non-increasing across the sequence", () => {
+    const witnesses = selectWitnesses(prime);
+    const ordered = orderWitnesses(prime, witnesses);
+    const counts = ordered.map((n) => consistentRuleCount(n, prime.validate(n)));
+    for (let i = 0; i < counts.length - 1; i++) {
+      expect(counts[i]).toBeGreaterThanOrEqual(counts[i + 1]);
+    }
+  });
+
+  it("works for perfect-square rule", () => {
+    const witnesses = selectWitnesses(perfectSquare);
+    const ordered = orderWitnesses(perfectSquare, witnesses);
+    const counts = ordered.map((n) =>
+      consistentRuleCount(n, perfectSquare.validate(n))
+    );
+    for (let i = 0; i < counts.length - 1; i++) {
+      expect(counts[i]).toBeGreaterThanOrEqual(counts[i + 1]);
+    }
+  });
+
+  it("does not mutate the input array", () => {
+    const witnesses = selectWitnesses(prime);
+    const copy = [...witnesses];
+    orderWitnesses(prime, witnesses);
+    expect(witnesses).toEqual(copy);
   });
 });
