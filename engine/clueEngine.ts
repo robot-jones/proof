@@ -251,3 +251,34 @@ export function nextClue(
   const available = orderedCluesFor(target).filter((c) => !usedClueIds.has(c.id));
   return available.find((c) => c.eliminationPower(candidates) > 0) ?? available[0] ?? null;
 }
+
+export interface ClueCountConfig {
+  min: number;
+  max: number;
+}
+
+export const clueCountByTier: Record<1 | 2 | 3, ClueCountConfig> = {
+  1: { min: 2, max: 4 },
+  2: { min: 3, max: 6 },
+  3: { min: 4, max: 8 },
+};
+
+export function generateClueSequence(
+  target: number,
+  config: ClueCountConfig
+): Clue[] {
+  let candidates = [...allNumbers];
+  const usedClueIds = new Set<string>();
+  const sequence: Clue[] = [];
+
+  while (sequence.length < config.max) {
+    const clue = nextClue(target, candidates, usedClueIds);
+    if (!clue) break;
+    sequence.push(clue);
+    usedClueIds.add(clue.id);
+    candidates = candidates.filter((c) => clue.matches(c));
+    if (candidates.length === 1 && sequence.length >= config.min) break;
+  }
+
+  return sequence;
+}

@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { cluesFor, clueTemplates, nextClue, orderedCluesFor } from "./clueEngine";
+import {
+  cluesFor,
+  clueTemplates,
+  nextClue,
+  orderedCluesFor,
+  generateClueSequence,
+  clueCountByTier,
+} from "./clueEngine";
 
 describe("clueTemplates", () => {
   it("is a non-empty array", () => {
@@ -254,5 +261,66 @@ describe("nextClue", () => {
 
     expect(sequence.length).toBeGreaterThan(0);
     expect(candidates).toContain(83);
+  });
+});
+
+describe("clueCountByTier", () => {
+  it("defines min and max for all three tiers", () => {
+    for (const tier of [1, 2, 3] as const) {
+      expect(clueCountByTier[tier].min).toBeGreaterThan(0);
+      expect(clueCountByTier[tier].max).toBeGreaterThanOrEqual(clueCountByTier[tier].min);
+    }
+  });
+
+  it("higher tiers have higher or equal min and max", () => {
+    expect(clueCountByTier[2].min).toBeGreaterThanOrEqual(clueCountByTier[1].min);
+    expect(clueCountByTier[3].min).toBeGreaterThanOrEqual(clueCountByTier[2].min);
+    expect(clueCountByTier[2].max).toBeGreaterThanOrEqual(clueCountByTier[1].max);
+    expect(clueCountByTier[3].max).toBeGreaterThanOrEqual(clueCountByTier[2].max);
+  });
+});
+
+describe("generateClueSequence", () => {
+  it("returns at least min clues", () => {
+    for (const tier of [1, 2, 3] as const) {
+      const config = clueCountByTier[tier];
+      const sequence = generateClueSequence(83, config);
+      expect(sequence.length).toBeGreaterThanOrEqual(config.min);
+    }
+  });
+
+  it("returns at most max clues", () => {
+    for (const tier of [1, 2, 3] as const) {
+      const config = clueCountByTier[tier];
+      const sequence = generateClueSequence(83, config);
+      expect(sequence.length).toBeLessThanOrEqual(config.max);
+    }
+  });
+
+  it("every clue is true for the target", () => {
+    const sequence = generateClueSequence(83, clueCountByTier[2]);
+    for (const clue of sequence) {
+      expect(clue.matches(83)).toBe(true);
+    }
+  });
+
+  it("no duplicate clues in sequence", () => {
+    const sequence = generateClueSequence(83, clueCountByTier[3]);
+    const ids = sequence.map((c) => c.id);
+    expect(ids.length).toBe(new Set(ids).size);
+  });
+
+  it("target remains in candidates after applying all clues", () => {
+    const sequence = generateClueSequence(83, clueCountByTier[1]);
+    const allCandidates = Array.from({ length: 999 }, (_, i) => i + 1);
+    const remaining = allCandidates.filter((c) => sequence.every((clue) => clue.matches(c)));
+    expect(remaining).toContain(83);
+  });
+
+  it("respects a custom config", () => {
+    const config = { min: 1, max: 2 };
+    const sequence = generateClueSequence(83, config);
+    expect(sequence.length).toBeGreaterThanOrEqual(1);
+    expect(sequence.length).toBeLessThanOrEqual(2);
   });
 });
