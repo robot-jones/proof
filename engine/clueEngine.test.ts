@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cluesFor, clueTemplates } from "./clueEngine";
+import { cluesFor, clueTemplates, nextClue } from "./clueEngine";
 
 describe("clueTemplates", () => {
   it("is a non-empty array", () => {
@@ -176,5 +176,60 @@ describe("eliminationPower", () => {
     const clue = cluesFor(83).find((c) => c.id === "is-prime")!;
     const candidates = [2, 3, 5, 7, 11]; // all prime
     expect(clue.eliminationPower(candidates)).toBe(0);
+  });
+});
+
+describe("nextClue", () => {
+  it("returns null when all clues are used", () => {
+    const usedClueIds = new Set(cluesFor(83).map((c) => c.id));
+    expect(nextClue(83, [83], usedClueIds)).toBeNull();
+  });
+
+  it("returns null when no clues are available for target", () => {
+    // Use a target with very few clues and mark them all used
+    const clues = cluesFor(1);
+    const usedClueIds = new Set(clues.map((c) => c.id));
+    expect(nextClue(1, [1], usedClueIds)).toBeNull();
+  });
+
+  it("skips already-used clues", () => {
+    const candidates = Array.from({ length: 999 }, (_, i) => i + 1);
+    const first = nextClue(83, candidates, new Set());
+    const usedClueIds = new Set([first!.id]);
+    const second = nextClue(83, candidates, usedClueIds);
+    expect(second).not.toBeNull();
+    expect(second!.id).not.toBe(first!.id);
+  });
+
+  it("selects the clue with highest elimination power", () => {
+    // With candidates [1..10], "is-odd" eliminates 5, "is-prime" eliminates 6 (1,4,6,8,9,10)
+    // so "is-prime" should win for target 83 (an odd prime)
+    const candidates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const clue = nextClue(83, candidates, new Set());
+    const allClues = cluesFor(83);
+    const best = allClues.reduce((a, b) =>
+      b.eliminationPower(candidates) > a.eliminationPower(candidates) ? b : a
+    );
+    expect(clue!.id).toBe(best.id);
+  });
+
+  it("each successive call produces a valid clue sequence", () => {
+    const allCandidates = Array.from({ length: 999 }, (_, i) => i + 1);
+    let candidates = [...allCandidates];
+    const usedClueIds = new Set<string>();
+    const sequence: string[] = [];
+
+    while (true) {
+      const clue = nextClue(83, candidates, usedClueIds);
+      if (!clue) break;
+      expect(clue.matches(83)).toBe(true);
+      usedClueIds.add(clue.id);
+      candidates = candidates.filter((c) => clue.matches(c));
+      sequence.push(clue.id);
+      if (candidates.length <= 1) break;
+    }
+
+    expect(sequence.length).toBeGreaterThan(0);
+    expect(candidates).toContain(83);
   });
 });

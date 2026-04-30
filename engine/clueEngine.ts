@@ -234,3 +234,15 @@ export function cluesFor(target: number): Clue[] {
         candidates.filter((c) => !clue.matches(c)).length,
     }));
 }
+
+export function nextClue(
+  target: number,
+  candidates: number[],
+  usedClueIds: Set<string>
+): Clue | null {
+  const available = cluesFor(target).filter((c) => !usedClueIds.has(c.id));
+  if (available.length === 0) return null;
+  return available.reduce((best, clue) =>
+    clue.eliminationPower(candidates) > best.eliminationPower(candidates) ? clue : best
+  );
+}
