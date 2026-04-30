@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cluesFor, clueTemplates, nextClue } from "./clueEngine";
+import { cluesFor, clueTemplates, nextClue, orderedCluesFor } from "./clueEngine";
 
 describe("clueTemplates", () => {
   it("is a non-empty array", () => {
@@ -179,6 +179,32 @@ describe("eliminationPower", () => {
   });
 });
 
+describe("orderedCluesFor", () => {
+  it("returns the same clues as cluesFor", () => {
+    const unordered = cluesFor(83).map((c) => c.id).sort();
+    const ordered = orderedCluesFor(83).map((c) => c.id).sort();
+    expect(ordered).toEqual(unordered);
+  });
+
+  it("orders clues from least to most specific", () => {
+    const allCandidates = Array.from({ length: 999 }, (_, i) => i + 1);
+    const clues = orderedCluesFor(83);
+    for (let i = 0; i < clues.length - 1; i++) {
+      expect(clues[i].eliminationPower(allCandidates)).toBeLessThanOrEqual(
+        clues[i + 1].eliminationPower(allCandidates)
+      );
+    }
+  });
+
+  it("first clue is less specific than last clue", () => {
+    const allCandidates = Array.from({ length: 999 }, (_, i) => i + 1);
+    const clues = orderedCluesFor(83);
+    expect(clues[0].eliminationPower(allCandidates)).toBeLessThan(
+      clues[clues.length - 1].eliminationPower(allCandidates)
+    );
+  });
+});
+
 describe("nextClue", () => {
   it("returns null when all clues are used", () => {
     const usedClueIds = new Set(cluesFor(83).map((c) => c.id));
@@ -201,16 +227,13 @@ describe("nextClue", () => {
     expect(second!.id).not.toBe(first!.id);
   });
 
-  it("selects the clue with highest elimination power", () => {
-    // With candidates [1..10], "is-odd" eliminates 5, "is-prime" eliminates 6 (1,4,6,8,9,10)
-    // so "is-prime" should win for target 83 (an odd prime)
-    const candidates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const clue = nextClue(83, candidates, new Set());
-    const allClues = cluesFor(83);
-    const best = allClues.reduce((a, b) =>
-      b.eliminationPower(candidates) > a.eliminationPower(candidates) ? b : a
-    );
-    expect(clue!.id).toBe(best.id);
+  it("selects the least specific clue with positive elimination power", () => {
+    const candidates = Array.from({ length: 999 }, (_, i) => i + 1);
+    const clue = nextClue(83, candidates, new Set())!;
+    const expected = orderedCluesFor(83).find(
+      (c) => c.eliminationPower(candidates) > 0
+    )!;
+    expect(clue.id).toBe(expected.id);
   });
 
   it("each successive call produces a valid clue sequence", () => {

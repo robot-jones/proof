@@ -1,4 +1,4 @@
-import { registry } from "./numberRegistry";
+import { registry, MAX } from "./numberRegistry";
 
 interface ClueBase {
   id: string;
@@ -224,6 +224,8 @@ export const clueTemplates: ClueTemplate[] = [
   divisibleBy(12),
 ];
 
+const allNumbers = Array.from({ length: MAX }, (_, i) => i + 1);
+
 export function cluesFor(target: number): Clue[] {
   return clueTemplates
     .map((template) => template(target))
@@ -235,14 +237,17 @@ export function cluesFor(target: number): Clue[] {
     }));
 }
 
+export function orderedCluesFor(target: number): Clue[] {
+  return cluesFor(target).sort(
+    (a, b) => a.eliminationPower(allNumbers) - b.eliminationPower(allNumbers)
+  );
+}
+
 export function nextClue(
   target: number,
   candidates: number[],
   usedClueIds: Set<string>
 ): Clue | null {
-  const available = cluesFor(target).filter((c) => !usedClueIds.has(c.id));
-  if (available.length === 0) return null;
-  return available.reduce((best, clue) =>
-    clue.eliminationPower(candidates) > best.eliminationPower(candidates) ? clue : best
-  );
+  const available = orderedCluesFor(target).filter((c) => !usedClueIds.has(c.id));
+  return available.find((c) => c.eliminationPower(candidates) > 0) ?? available[0] ?? null;
 }
