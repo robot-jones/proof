@@ -1,6 +1,7 @@
 import { MAX } from "./numberRegistry";
 import { rules } from "./rules";
 import type { Rule } from "./rules";
+import { generateClueSequence, clueCountByTier } from "./clueEngine";
 
 const allNumbers = Array.from({ length: MAX }, (_, i) => i + 1);
 
@@ -31,6 +32,21 @@ export function orderWitnesses(rule: Rule, witnesses: number[]): number[] {
     const consistentB = rules.filter((r) => r.validate(b) === inSetB).length;
     return consistentB - consistentA; // descending: most ambiguous first
   });
+}
+
+export interface Witness {
+  value: number;
+  inSet: boolean;
+  clues: string[];
+}
+
+export function generateWitness(
+  value: number,
+  rule: Rule,
+  tier: 1 | 2 | 3
+): Witness {
+  const clues = generateClueSequence(value, clueCountByTier[tier]).map((c) => c.text);
+  return { value, inSet: rule.validate(value), clues };
 }
 
 export function selectWitnesses(

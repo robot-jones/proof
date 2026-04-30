@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { selectWitnesses, orderWitnesses, defaultWitnessConfig } from "./witnessGenerator";
+import {
+  selectWitnesses,
+  orderWitnesses,
+  generateWitness,
+  defaultWitnessConfig,
+} from "./witnessGenerator";
 import { rules } from "./rules";
+import { clueCountByTier } from "./clueEngine";
 import { tier1Rules } from "./rules/tier1";
 import { tier2Rules } from "./rules/tier2";
 import { tier3Rules } from "./rules/tier3";
@@ -150,5 +156,47 @@ describe("orderWitnesses", () => {
     const copy = [...witnesses];
     orderWitnesses(prime, witnesses);
     expect(witnesses).toEqual(copy);
+  });
+});
+
+describe("generateWitness", () => {
+  it("sets inSet correctly for an in-set member", () => {
+    const w = generateWitness(83, prime, 1); // 83 is prime
+    expect(w.inSet).toBe(true);
+    expect(w.value).toBe(83);
+  });
+
+  it("sets inSet correctly for an out-of-set member", () => {
+    const w = generateWitness(84, prime, 1); // 84 is not prime
+    expect(w.inSet).toBe(false);
+    expect(w.value).toBe(84);
+  });
+
+  it("produces at least min clues for the tier", () => {
+    for (const tier of [1, 2, 3] as const) {
+      const w = generateWitness(83, prime, tier);
+      expect(w.clues.length).toBeGreaterThanOrEqual(clueCountByTier[tier].min);
+    }
+  });
+
+  it("produces at most max clues for the tier", () => {
+    for (const tier of [1, 2, 3] as const) {
+      const w = generateWitness(83, prime, tier);
+      expect(w.clues.length).toBeLessThanOrEqual(clueCountByTier[tier].max);
+    }
+  });
+
+  it("higher tiers produce at least as many clues", () => {
+    const t1 = generateWitness(83, prime, 1);
+    const t3 = generateWitness(83, prime, 3);
+    expect(t3.clues.length).toBeGreaterThanOrEqual(t1.clues.length);
+  });
+
+  it("clues are non-empty strings", () => {
+    const w = generateWitness(83, prime, 2);
+    for (const clue of w.clues) {
+      expect(typeof clue).toBe("string");
+      expect(clue.length).toBeGreaterThan(0);
+    }
   });
 });
