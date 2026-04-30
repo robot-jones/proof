@@ -1,4 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Proof
+
+A daily logic deduction game. Every day, a secret mathematical rule defines a hidden set. Your job is to deduce the rule — by first cracking the witnesses.
+
+---
+
+## How it works
+
+Each puzzle has two layers.
+
+**Layer 1 — Crack the witnesses**
+
+You're shown witnesses one at a time. Each witness is a hidden number. Logical clues drip in — *"this number has exactly 3 factors"*, *"the digit sum is prime"*, *"this number is divisible by 7"* — and you narrow down what the witness is. Guess early for efficiency. Once cracked, you learn whether the witness belongs to the secret set or not.
+
+**Layer 2 — Name the rule**
+
+As witnesses are revealed and their membership confirmed, you build a picture. All in-set witnesses share a hidden mathematical property. Once you think you know what it is, name the rule. The fewer witnesses you needed, the better your score.
+
+---
+
+## Scoring
+
+Your score reflects two things: how efficiently you cracked the witnesses, and how early you named the rule. Results are summarized in a shareable score card that conveys your performance without spoiling the puzzle.
+
+---
+
+## Difficulty
+
+Puzzles follow a weekly difficulty ramp. Monday is approachable. Sunday is for people who think in modular arithmetic for fun. The full clue set for any witness always uniquely identifies it — every puzzle is solvable by a persistent player.
+
+---
+
+## Number space
+
+All witness values are integers between 1 and 999.
+
+---
+
+## Tech stack
+
+- **Framework** — Next.js (TypeScript)
+- **Hosting** — Vercel
+- **Database** — Amazon DynamoDB, provisioned via the Vercel Marketplace and owned by your AWS account
+- **Auth** — Vercel OIDC Federation + DynamoDB IAM authentication (no hardcoded credentials)
+
+DynamoDB tables live in your AWS account and are fully accessible via the AWS Console. Vercel handles credential injection and environment variable wiring automatically.
+
+---
+
+## Project structure
+
+```
+proof/
+├── engine/               # Puzzle generation and validation (headless)
+│   ├── numberRegistry.js # Precomputed properties for all integers 1–MAX
+│   ├── rules/            # Rule definitions, tiers, and validator functions
+│   ├── clueEngine.js     # Clue generation and sequencing per witness
+│   ├── witnessGenerator.js # Witness selection and ordering given a rule
+│   └── validator.js      # Two-pass uniqueness validation
+├── pipeline/             # Puzzle scheduling and storage
+│   ├── scheduler.js      # Weekly difficulty schedule and date assignment
+│   └── puzzleBank/       # Validated puzzle JSON documents
+├── web/                  # Frontend
+│   ├── components/       # Game UI components
+│   └── ...
+├── scripts/              # CLI tools for bulk generation, admin, testing
+├── DESIGN.md             # Game design document
+├── ROADMAP.md            # Full epics, features, and user stories
+└── README.md
+```
+
+---
+
+## Development order
+
+The puzzle engine (everything under `engine/`) is fully buildable and testable without any UI. Start there.
+
+1. Define the number space and rule taxonomy
+2. Build the clue engine
+3. Build the witness generator
+4. Build the two-pass validator
+5. Build the puzzle pipeline (scheduling + storage)
+6. Build the frontend
+7. Build scoring and share card
+
+See [`ROADMAP.md`](./ROADMAP.md) for full epics, features, and user stories.
+
+---
+
+## Configuration
+
+The number space upper bound is a single configurable constant:
+
+```js
+const MAX = 999; // expandable to 9999 or beyond without refactoring
+```
+
+All engine logic operates against this constant. Expanding the number space requires updating `MAX` and revalidating the rule and clue sets against the new space.
+
+---
+
+## Puzzle format
+
+Each puzzle is stored as a JSON document:
+
+```json
+{
+  "id": "2026-04-28",
+  "scheduledDate": "2026-04-28",
+  "tier": 1,
+  "rule": {
+    "id": "digit-sum-prime",
+    "description": "numbers whose digit sum is prime"
+  },
+  "witnesses": [
+    {
+      "value": 83,
+      "inSet": true,
+      "clues": [
+        "this number is greater than 50",
+        "this number is prime",
+        "the digit sum of this number is prime"
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## License
+
+MIT
+
 
 ## Getting Started
 
