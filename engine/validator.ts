@@ -99,3 +99,34 @@ export function assertValidRule(
     );
   }
 }
+
+// --- Pass 2: witness suggestions ---
+
+export interface WitnessSuggestion {
+  value: number;
+  disambiguationPower: number; // number of currently-consistent rules this witness would eliminate
+}
+
+export function suggestWitnesses(
+  currentWitnesses: Array<{ value: number; inSet: boolean }>,
+  targetRule: Rule,
+  count: number = 5
+): WitnessSuggestion[] {
+  const consistentRules = enumerateConsistentRules(currentWitnesses);
+  const usedValues = new Set(currentWitnesses.map((w) => w.value));
+
+  const suggestions: WitnessSuggestion[] = [];
+
+  for (let v = 1; v <= MAX; v++) {
+    if (usedValues.has(v)) continue;
+    const trueInSet = targetRule.validate(v);
+    const eliminated = consistentRules.filter((r) => r.validate(v) !== trueInSet).length;
+    if (eliminated > 0) {
+      suggestions.push({ value: v, disambiguationPower: eliminated });
+    }
+  }
+
+  return suggestions
+    .sort((a, b) => b.disambiguationPower - a.disambiguationPower)
+    .slice(0, count);
+}

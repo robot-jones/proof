@@ -5,6 +5,7 @@ import {
   validateRule,
   assertValidRule,
   enumerateConsistentRules,
+  suggestWitnesses,
 } from "./validator";
 import { generateClueSequence, clueCountByTier, cluesFor } from "./clueEngine";
 import { selectWitnesses, orderWitnesses } from "./witnessGenerator";
@@ -205,6 +206,55 @@ describe("assertValidRule", () => {
     const result = validateRule(witnesses, prime);
     if (result.valid) {
       expect(() => assertValidRule(witnesses, prime)).not.toThrow();
+    }
+  });
+});
+
+describe("suggestWitnesses", () => {
+  it("returns at most count suggestions", () => {
+    const suggestions = suggestWitnesses([], prime, 5);
+    expect(suggestions.length).toBeLessThanOrEqual(5);
+  });
+
+  it("all suggestions have positive disambiguation power", () => {
+    const suggestions = suggestWitnesses([], prime, 10);
+    for (const s of suggestions) {
+      expect(s.disambiguationPower).toBeGreaterThan(0);
+    }
+  });
+
+  it("suggestions are sorted by descending disambiguation power", () => {
+    const suggestions = suggestWitnesses([], prime, 10);
+    for (let i = 0; i < suggestions.length - 1; i++) {
+      expect(suggestions[i].disambiguationPower).toBeGreaterThanOrEqual(
+        suggestions[i + 1].disambiguationPower
+      );
+    }
+  });
+
+  it("suggestions do not include already-used witnesses", () => {
+    const used = [{ value: 83, inSet: prime.validate(83) }];
+    const suggestions = suggestWitnesses(used, prime);
+    expect(suggestions.every((s) => s.value !== 83)).toBe(true);
+  });
+
+  it("returns fewer suggestions as witnesses are added and ambiguity narrows", () => {
+    const countWithNone = suggestWitnesses([], prime, 999).length;
+    const witnesses = [{ value: 83, inSet: prime.validate(83) }];
+    const countWithOne = suggestWitnesses(witnesses, prime, 999).length;
+    expect(countWithOne).toBeLessThanOrEqual(countWithNone);
+  });
+
+  it("returns no suggestions when the rule is already uniquely identified", () => {
+    const values = selectWitnesses(prime);
+    const witnesses = orderWitnesses(prime, values).map((v) => ({
+      value: v,
+      inSet: prime.validate(v),
+    }));
+    if (validateRule(witnesses, prime).valid) {
+      const suggestions = suggestWitnesses(witnesses, prime);
+      expect(suggestions.every((s) => s.disambiguationPower === 0)).toBe(true);
+      expect(suggestions.length).toBe(0);
     }
   });
 });
