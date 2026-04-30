@@ -72,6 +72,36 @@ describe("selectWitnesses", () => {
     expect(inSet.every((n) => fibonacci.validate(n))).toBe(true);
     expect(outSet.every((n) => !fibonacci.validate(n))).toBe(true);
   });
+
+  it("excludes trivial in-set members when pool is large enough", () => {
+    // perfect-square has many members; 1, 4, 9 should be excluded (≤ 10)
+    const witnesses = selectWitnesses(perfectSquare);
+    const inSet = witnesses.filter((n) => perfectSquare.validate(n));
+    expect(inSet.every((n) => n > defaultWitnessConfig.trivialThreshold)).toBe(true);
+  });
+
+  it("falls back to full pool when filtered pool is too small", () => {
+    // kaprekar only has 8 members total; with threshold=10, only some are > 10
+    // but we need inCount=3 in-set members, so it may need to use trivial ones
+    const witnesses = selectWitnesses(kaprekar);
+    const inSet = witnesses.filter((n) => kaprekar.validate(n));
+    expect(inSet.length).toBeGreaterThan(0); // still gets in-set members
+  });
+
+  it("trivialThreshold=0 includes all members", () => {
+    const config = { ...defaultWitnessConfig, trivialThreshold: 0 };
+    const witnesses = selectWitnesses(perfectSquare, config);
+    // 1, 4, 9 are now eligible — no requirement to exclude them
+    expect(witnesses.length).toBe(config.count);
+  });
+
+  it("does not apply trivial threshold to out-of-set members", () => {
+    // Out-of-set small numbers (e.g. 2 for perfect-square) are fine to include
+    const config = { ...defaultWitnessConfig, inCount: 1 };
+    const witnesses = selectWitnesses(perfectSquare, config);
+    const outSet = witnesses.filter((n) => !perfectSquare.validate(n));
+    expect(outSet.length).toBe(config.count - config.inCount);
+  });
 });
 
 function consistentRuleCount(n: number, inSet: boolean): number {

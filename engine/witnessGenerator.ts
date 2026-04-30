@@ -7,11 +7,13 @@ const allNumbers = Array.from({ length: MAX }, (_, i) => i + 1);
 export interface WitnessConfig {
   count: number;
   inCount: number;
+  trivialThreshold: number; // in-set members at or below this value are excluded when possible
 }
 
 export const defaultWitnessConfig: WitnessConfig = {
   count: 5,
   inCount: 3,
+  trivialThreshold: 10,
 };
 
 function sampleEvenly(pool: number[], n: number): number[] {
@@ -35,10 +37,13 @@ export function selectWitnesses(
   rule: Rule,
   config: WitnessConfig = defaultWitnessConfig
 ): number[] {
-  const { count, inCount } = config;
+  const { count, inCount, trivialThreshold } = config;
   const outCount = count - inCount;
 
-  const inPool = allNumbers.filter((n) => rule.validate(n));
+  const fullInPool = allNumbers.filter((n) => rule.validate(n));
+  const filteredInPool = fullInPool.filter((n) => n > trivialThreshold);
+  const inPool = filteredInPool.length >= inCount ? filteredInPool : fullInPool;
+
   const outPool = allNumbers.filter((n) => !rule.validate(n));
 
   return [
