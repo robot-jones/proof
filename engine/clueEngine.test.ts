@@ -141,3 +141,40 @@ describe("clue matches function", () => {
     expect(clue.matches(250)).toBe(false);
   });
 });
+
+describe("eliminationPower", () => {
+  it("returns 0 for empty candidate set", () => {
+    const clue = cluesFor(83).find((c) => c.id === "is-prime")!;
+    expect(clue.eliminationPower([])).toBe(0);
+  });
+
+  it("counts candidates ruled out by is-prime", () => {
+    const clue = cluesFor(83).find((c) => c.id === "is-prime")!;
+    const candidates = [2, 3, 4, 6, 7]; // primes: 2, 3, 7 — eliminates 4, 6
+    expect(clue.eliminationPower(candidates)).toBe(2);
+  });
+
+  it("counts candidates ruled out by is-even", () => {
+    const clue = cluesFor(12).find((c) => c.id === "is-even")!;
+    const candidates = [1, 2, 3, 4, 5]; // even: 2, 4 — eliminates 1, 3, 5
+    expect(clue.eliminationPower(candidates)).toBe(3);
+  });
+
+  it("counts candidates ruled out by divisible-by-3", () => {
+    const clue = cluesFor(12).find((c) => c.id === "divisible-by-3")!;
+    const candidates = [3, 6, 7, 9, 10]; // divisible: 3, 6, 9 — eliminates 7, 10
+    expect(clue.eliminationPower(candidates)).toBe(2);
+  });
+
+  it("returns candidates.length when no candidate matches", () => {
+    const clue = cluesFor(83).find((c) => c.id === "is-prime")!;
+    const candidates = [4, 6, 8, 9]; // no primes
+    expect(clue.eliminationPower(candidates)).toBe(4);
+  });
+
+  it("returns 0 when all candidates match", () => {
+    const clue = cluesFor(83).find((c) => c.id === "is-prime")!;
+    const candidates = [2, 3, 5, 7, 11]; // all prime
+    expect(clue.eliminationPower(candidates)).toBe(0);
+  });
+});

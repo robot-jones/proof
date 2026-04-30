@@ -1,12 +1,16 @@
 import { registry } from "./numberRegistry";
 
-export interface Clue {
+interface ClueBase {
   id: string;
   text: string;
   matches: (candidate: number) => boolean;
 }
 
-type ClueTemplate = (target: number) => Clue | null;
+export interface Clue extends ClueBase {
+  eliminationPower: (candidates: number[]) => number;
+}
+
+type ClueTemplate = (target: number) => ClueBase | null;
 
 // --- Single templates ---
 
@@ -223,5 +227,10 @@ export const clueTemplates: ClueTemplate[] = [
 export function cluesFor(target: number): Clue[] {
   return clueTemplates
     .map((template) => template(target))
-    .filter((clue): clue is Clue => clue !== null);
+    .filter((clue): clue is Clue => clue !== null)
+    .map((clue) => ({
+      ...clue,
+      eliminationPower: (candidates: number[]) =>
+        candidates.filter((c) => !clue.matches(c)).length,
+    }));
 }
