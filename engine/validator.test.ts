@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { validateWitness, assertValidWitness } from "./validator";
+import { validateWitness, assertValidWitness, validateRule, assertValidRule } from "./validator";
 import { generateClueSequence, clueCountByTier, cluesFor } from "./clueEngine";
+import { selectWitnesses, orderWitnesses } from "./witnessGenerator";
+import { rules } from "./rules";
+import { tier1Rules } from "./rules/tier1";
+
+const prime = tier1Rules.find((r) => r.id === "prime")!;
 
 describe("validateWitness", () => {
   it("is valid when the full sequence resolves to exactly the target", () => {
@@ -72,5 +77,82 @@ describe("assertValidWitness", () => {
   it("error message includes the target and candidate count", () => {
     const clue = cluesFor(83).find((c) => c.id === "is-odd")!;
     expect(() => assertValidWitness(83, [clue])).toThrow(/83/);
+  });
+});
+
+describe("validateRule", () => {
+  it("is ambiguous with no witnesses — all rules match", () => {
+    const result = validateRule([], prime);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toBe("ambiguous");
+    expect(result.matchingRules.length).toBe(rules.length);
+  });
+
+  it("matchingRules always contains the target rule when witnesses are truthful", () => {
+    const values = selectWitnesses(prime);
+    const witnesses = orderWitnesses(prime, values).map((v) => ({
+      value: v,
+      inSet: prime.validate(v),
+    }));
+    const result = validateRule(witnesses, prime);
+    expect(result.matchingRules.some((r) => r.id === prime.id)).toBe(true);
+  });
+
+  it("sets reason to 'ambiguous' when multiple rules match", () => {
+    // A single witness is rarely enough to uniquely identify a rule
+    const result = validateRule([{ value: 83, inSet: true }], prime);
+    if (!result.valid) {
+      expect(result.reason).toBe("ambiguous");
+    }
+  });
+
+  it("sets reason to 'no-matching-rule' for contradictory witnesses", () => {
+    // Same value marked both in-set and out-of-set — no rule can satisfy both
+    const witnesses = [
+      { value: 83, inSet: true },
+      { value: 83, inSet: false },
+    ];
+    const result = validateRule(witnesses, prime);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toBe("no-matching-rule");
+    expect(result.matchingRules.length).toBe(0);
+  });
+
+  it("sets no reason when valid", () => {
+    const values = selectWitnesses(prime);
+    const witnesses = orderWitnesses(prime, values).map((v) => ({
+      value: v,
+      inSet: prime.validate(v),
+    }));
+    const result = validateRule(witnesses, prime);
+    if (result.valid) {
+      expect(result.reason).toBeUndefined();
+    }
+  });
+});
+
+describe("assertValidRule", () => {
+  it("throws for contradictory witnesses", () => {
+    const witnesses = [
+      { value: 83, inSet: true },
+      { value: 83, inSet: false },
+    ];
+    expect(() => assertValidRule(witnesses, prime)).toThrow(/no-matching-rule/);
+  });
+
+  it("throws for an empty witness set", () => {
+    expect(() => assertValidRule([], prime)).toThrow(/ambiguous/);
+  });
+
+  it("does not throw when exactly one rule matches", () => {
+    const values = selectWitnesses(prime);
+    const witnesses = orderWitnesses(prime, values).map((v) => ({
+      value: v,
+      inSet: prime.validate(v),
+    }));
+    const result = validateRule(witnesses, prime);
+    if (result.valid) {
+      expect(() => assertValidRule(witnesses, prime)).not.toThrow();
+    }
   });
 });
