@@ -1,0 +1,106 @@
+{
+  "tier": 1,
+  "rule": {
+    "id": "divisible-by-7",
+    "description": "numbers divisible by 7"
+  },
+  "witnesses": [
+    {
+      "value": 250,
+      "inSet": false,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is less than 750",
+        "this number has exactly 2 distinct prime factors",
+        "the digit sum of this number is odd",
+        "this number is even",
+        "this number is less than 500",
+        "the digit sum of this number is prime",
+        "this number is divisible by 5",
+        "this number has exactly 8 factors"
+      ]
+    },
+    {
+      "value": 750,
+      "inSet": false,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is greater than 250",
+        "the digit sum of this number is not prime",
+        "this number is even",
+        "the digit sum of this number is even",
+        "this number is greater than 500",
+        "this number is divisible by 3",
+        "this number has exactly 3 distinct prime factors",
+        "this number is divisible by 5",
+        "the first digit of this number is 7"
+      ]
+    },
+    {
+      "value": 504,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is greater than 250",
+        "this number is less than 750",
+        "the digit sum of this number is not prime",
+        "the digit sum of this number is odd",
+        "this number is even",
+        "this number is greater than 500",
+        "this number has exactly 3 distinct prime factors",
+        "this number is divisible by 4",
+        "this number is divisible by 7",
+        "this number is divisible by 8",
+        "the first digit of this number is 5"
+      ]
+    },
+    {
+      "value": 175,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is less than 750",
+        "this number has exactly 2 distinct prime factors",
+        "this number is odd",
+        "the digit sum of this number is odd",
+        "this number is less than 500",
+        "the digit sum of this number is prime",
+        "this number is less than 250",
+        "this number is divisible by 5",
+        "this number is divisible by 7",
+        "the first digit of this number is 1"
+      ]
+    },
+    {
+      "value": 833,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is greater than 250",
+        "the digit sum of this number is not prime",
+        "this number has exactly 2 distinct prime factors",
+        "this number is odd",
+        "the digit sum of this number is even",
+        "this number is greater than 500",
+        "this number is divisible by 7",
+        "the first digit of this number is 8",
+        "this number has exactly 6 factors"
+      ]
+    }
+  ]
+}

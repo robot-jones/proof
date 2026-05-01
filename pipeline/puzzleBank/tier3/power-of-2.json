@@ -1,0 +1,103 @@
+{
+  "tier": 3,
+  "rule": {
+    "id": "power-of-2",
+    "description": "powers of 2"
+  },
+  "witnesses": [
+    {
+      "value": 752,
+      "inSet": false,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is greater than 250",
+        "the digit sum of this number is not prime",
+        "this number has exactly 2 distinct prime factors",
+        "this number is even",
+        "the digit sum of this number is even",
+        "this number is greater than 500",
+        "this number is divisible by 4",
+        "this number is divisible by 8",
+        "the first digit of this number is 7",
+        "the last digit of this number is 2",
+        "the digit sum of this number is 14"
+      ]
+    },
+    {
+      "value": 257,
+      "inSet": false,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is greater than 250",
+        "this number is less than 750",
+        "the digit sum of this number is not prime",
+        "this number is odd",
+        "the digit sum of this number is even",
+        "this number is less than 500",
+        "this number has exactly 1 distinct prime factor",
+        "this number is prime",
+        "the first digit of this number is 2",
+        "the last digit of this number is 7",
+        "the digit sum of this number is 14"
+      ]
+    },
+    {
+      "value": 32,
+      "inSet": true,
+      "clues": [
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is less than 750",
+        "the digit sum of this number is odd",
+        "this number is even",
+        "this number is less than 500",
+        "the digit sum of this number is prime",
+        "this number is less than 250",
+        "this number is divisible by 4",
+        "this number has exactly 1 distinct prime factor",
+        "the first digit of this number is 3"
+      ]
+    },
+    {
+      "value": 512,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is greater than 250",
+        "this number is less than 750",
+        "the digit sum of this number is not prime",
+        "this number is even",
+        "the digit sum of this number is even",
+        "this number is greater than 500",
+        "this number is divisible by 4",
+        "this number has exactly 1 distinct prime factor"
+      ]
+    },
+    {
+      "value": 128,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is less than 750",
+        "the digit sum of this number is odd",
+        "this number is even",
+        "this number is less than 500",
+        "the digit sum of this number is prime",
+        "this number is less than 250",
+        "this number is divisible by 4",
+        "this number has exactly 1 distinct prime factor"
+      ]
+    }
+  ]
+}

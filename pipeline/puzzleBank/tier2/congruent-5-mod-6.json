@@ -1,0 +1,104 @@
+{
+  "tier": 2,
+  "rule": {
+    "id": "congruent-5-mod-6",
+    "description": "numbers that are 5 more than a multiple of 6"
+  },
+  "witnesses": [
+    {
+      "value": 250,
+      "inSet": false,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is less than 750",
+        "this number has exactly 2 distinct prime factors",
+        "the digit sum of this number is odd",
+        "this number is even",
+        "this number is less than 500",
+        "the digit sum of this number is prime",
+        "this number is divisible by 5",
+        "this number has exactly 8 factors"
+      ]
+    },
+    {
+      "value": 750,
+      "inSet": false,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is greater than 250",
+        "the digit sum of this number is not prime",
+        "this number is even",
+        "the digit sum of this number is even",
+        "this number is greater than 500",
+        "this number is divisible by 3",
+        "this number has exactly 3 distinct prime factors",
+        "this number is divisible by 5",
+        "the first digit of this number is 7"
+      ]
+    },
+    {
+      "value": 173,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is less than 750",
+        "this number is odd",
+        "the digit sum of this number is odd",
+        "this number is less than 500",
+        "the digit sum of this number is prime",
+        "this number is less than 250",
+        "this number has exactly 1 distinct prime factor",
+        "the first digit of this number is 1",
+        "the last digit of this number is 3",
+        "the digit sum of this number is 11"
+      ]
+    },
+    {
+      "value": 503,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is greater than 250",
+        "this number is less than 750",
+        "the digit sum of this number is not prime",
+        "this number is odd",
+        "the digit sum of this number is even",
+        "this number is greater than 500",
+        "this number has exactly 1 distinct prime factor",
+        "this number is prime",
+        "the first digit of this number is 5",
+        "the last digit of this number is 3",
+        "the digit sum of this number is 8"
+      ]
+    },
+    {
+      "value": 833,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is greater than 250",
+        "the digit sum of this number is not prime",
+        "this number has exactly 2 distinct prime factors",
+        "this number is odd",
+        "the digit sum of this number is even",
+        "this number is greater than 500",
+        "this number is divisible by 7",
+        "the first digit of this number is 8",
+        "this number has exactly 6 factors"
+      ]
+    }
+  ]
+}

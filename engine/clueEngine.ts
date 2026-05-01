@@ -111,21 +111,24 @@ const firstDigit: ClueTemplate = (n) => {
   };
 };
 
+// Rare-property templates: only emitted when the target has the property.
+// "Not a perfect square" (EP=31) wastes a clue slot with almost no information.
+
 const perfectSquare: ClueTemplate = (n) => {
-  const sq = registry.get(n)!.isPerfectSquare;
+  if (!registry.get(n)!.isPerfectSquare) return null;
   return {
-    id: sq ? "is-perfect-square" : "is-not-perfect-square",
-    text: `this number is ${sq ? "" : "not "}a perfect square`,
-    matches: (c) => registry.get(c)!.isPerfectSquare === sq,
+    id: "is-perfect-square",
+    text: "this number is a perfect square",
+    matches: (c) => registry.get(c)!.isPerfectSquare,
   };
 };
 
 const perfectCube: ClueTemplate = (n) => {
-  const cube = registry.get(n)!.isPerfectCube;
+  if (!registry.get(n)!.isPerfectCube) return null;
   return {
-    id: cube ? "is-perfect-cube" : "is-not-perfect-cube",
-    text: `this number is ${cube ? "" : "not "}a perfect cube`,
-    matches: (c) => registry.get(c)!.isPerfectCube === cube,
+    id: "is-perfect-cube",
+    text: "this number is a perfect cube",
+    matches: (c) => registry.get(c)!.isPerfectCube,
   };
 };
 
@@ -139,20 +142,20 @@ const palindrome: ClueTemplate = (n) => {
 };
 
 const isFibonacci: ClueTemplate = (n) => {
-  const fib = registry.get(n)!.isFibonacci;
+  if (!registry.get(n)!.isFibonacci) return null;
   return {
-    id: fib ? "is-fibonacci" : "is-not-fibonacci",
-    text: `this number is ${fib ? "" : "not "}a Fibonacci number`,
-    matches: (c) => registry.get(c)!.isFibonacci === fib,
+    id: "is-fibonacci",
+    text: "this number is a Fibonacci number",
+    matches: (c) => registry.get(c)!.isFibonacci,
   };
 };
 
 const isTriangular: ClueTemplate = (n) => {
-  const tri = registry.get(n)!.isTriangular;
+  if (!registry.get(n)!.isTriangular) return null;
   return {
-    id: tri ? "is-triangular" : "is-not-triangular",
-    text: `this number is ${tri ? "" : "not "}a triangular number`,
-    matches: (c) => registry.get(c)!.isTriangular === tri,
+    id: "is-triangular",
+    text: "this number is a triangular number",
+    matches: (c) => registry.get(c)!.isTriangular,
   };
 };
 
@@ -258,9 +261,9 @@ export interface ClueCountConfig {
 }
 
 export const clueCountByTier: Record<1 | 2 | 3, ClueCountConfig> = {
-  1: { min: 2, max: 4 },
-  2: { min: 3, max: 6 },
-  3: { min: 4, max: 8 },
+  1: { min: 2, max: 20 },
+  2: { min: 3, max: 20 },
+  3: { min: 4, max: 20 },
 };
 
 export function generateClueSequence(

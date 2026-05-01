@@ -1,0 +1,109 @@
+{
+  "tier": 2,
+  "rule": {
+    "id": "congruent-3-mod-4",
+    "description": "numbers that are 3 more than a multiple of 4"
+  },
+  "witnesses": [
+    {
+      "value": 250,
+      "inSet": false,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is less than 750",
+        "this number has exactly 2 distinct prime factors",
+        "the digit sum of this number is odd",
+        "this number is even",
+        "this number is less than 500",
+        "the digit sum of this number is prime",
+        "this number is divisible by 5",
+        "this number has exactly 8 factors"
+      ]
+    },
+    {
+      "value": 749,
+      "inSet": false,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is greater than 250",
+        "this number is less than 750",
+        "the digit sum of this number is not prime",
+        "this number has exactly 2 distinct prime factors",
+        "this number is odd",
+        "the digit sum of this number is even",
+        "this number is greater than 500",
+        "this number has exactly 4 factors",
+        "this number is divisible by 7",
+        "the first digit of this number is 7",
+        "the last digit of this number is 9"
+      ]
+    },
+    {
+      "value": 175,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is less than 750",
+        "this number has exactly 2 distinct prime factors",
+        "this number is odd",
+        "the digit sum of this number is odd",
+        "this number is less than 500",
+        "the digit sum of this number is prime",
+        "this number is less than 250",
+        "this number is divisible by 5",
+        "this number is divisible by 7",
+        "the first digit of this number is 1"
+      ]
+    },
+    {
+      "value": 835,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is greater than 250",
+        "the digit sum of this number is not prime",
+        "this number has exactly 2 distinct prime factors",
+        "this number is odd",
+        "the digit sum of this number is even",
+        "this number is greater than 500",
+        "this number has exactly 4 factors",
+        "this number is divisible by 5",
+        "the first digit of this number is 8",
+        "the digit sum of this number is 16"
+      ]
+    },
+    {
+      "value": 507,
+      "inSet": true,
+      "clues": [
+        "this number has 3 digits",
+        "this number is greater than 100",
+        "this number is not a palindrome",
+        "this number is not prime",
+        "this number is greater than 250",
+        "this number is less than 750",
+        "the digit sum of this number is not prime",
+        "this number has exactly 2 distinct prime factors",
+        "this number is odd",
+        "the digit sum of this number is even",
+        "this number is greater than 500",
+        "this number is divisible by 3",
+        "the first digit of this number is 5",
+        "this number has exactly 6 factors",
+        "the last digit of this number is 7"
+      ]
+    }
+  ]
+}
