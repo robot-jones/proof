@@ -1,5 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { tierMixByDay, tierForDate, dateKey, scheduleDates } from "./scheduler";
+import { tierMixByDay, tierForDate, dateKey, scheduleDates, assignPuzzles } from "./scheduler";
+import type { ScheduledPuzzle } from "./scheduler";
+
+function makePuzzle(ruleId: string, tier: 1 | 2 | 3): ScheduledPuzzle {
+  return {
+    id: "",
+    scheduledDate: "",
+    tier,
+    rule: { id: ruleId, description: `test rule ${ruleId}` },
+    witnesses: [],
+  };
+}
 
 describe("tierMixByDay", () => {
   it("covers all seven days", () => {
@@ -109,5 +120,74 @@ describe("scheduleDates", () => {
     const original = start.getTime();
     scheduleDates(start, 7);
     expect(start.getTime()).toBe(original);
+  });
+});
+
+describe("assignPuzzles", () => {
+  const pool: Record<1 | 2 | 3, ScheduledPuzzle[]> = {
+    1: [makePuzzle("prime", 1), makePuzzle("perfect-square", 1)],
+    2: [makePuzzle("fibonacci", 2)],
+    3: [makePuzzle("happy", 3)],
+  };
+
+  it("returns one puzzle per date when pools are non-empty", () => {
+    // Use a full week starting Monday 2026-05-04
+    const dates = scheduleDates(new Date("2026-05-04T00:00:00Z"), 7);
+    const result = assignPuzzles(dates, pool);
+    expect(result.length).toBe(7);
+  });
+
+  it("each puzzle has id and scheduledDate matching its date", () => {
+    const dates = scheduleDates(new Date("2026-05-04T00:00:00Z"), 3);
+    const result = assignPuzzles(dates, pool);
+    for (let i = 0; i < result.length; i++) {
+      const expected = dateKey(dates[i]);
+      expect(result[i].id).toBe(expected);
+      expect(result[i].scheduledDate).toBe(expected);
+    }
+  });
+
+  it("Monday puzzles are Tier 1", () => {
+    const monday = new Date("2026-05-04T00:00:00Z");
+    expect(monday.getUTCDay()).toBe(1);
+    const result = assignPuzzles([monday], pool);
+    expect(result[0].tier).toBe(1);
+  });
+
+  it("Sunday puzzles are Tier 3", () => {
+    const sunday = new Date("2026-05-10T00:00:00Z");
+    expect(sunday.getUTCDay()).toBe(0);
+    const result = assignPuzzles([sunday], pool);
+    expect(result[0].tier).toBe(3);
+  });
+
+  it("cycles through the pool when there are more dates than puzzles", () => {
+    const mondays = [
+      new Date("2026-05-04T00:00:00Z"),
+      new Date("2026-05-11T00:00:00Z"),
+      new Date("2026-05-18T00:00:00Z"),
+    ]; // 3 Mondays, pool has 2 Tier 1 puzzles
+    const result = assignPuzzles(mondays, pool);
+    expect(result[0].rule.id).toBe(result[2].rule.id); // wraps around
+    expect(result[0].rule.id).not.toBe(result[1].rule.id);
+  });
+
+  it("skips dates when the tier pool is empty", () => {
+    const emptyPool: Record<1 | 2 | 3, ScheduledPuzzle[]> = {
+      1: [],
+      2: [],
+      3: [makePuzzle("happy", 3)],
+    };
+    const dates = scheduleDates(new Date("2026-05-04T00:00:00Z"), 7);
+    const result = assignPuzzles(dates, emptyPool);
+    // Only Sundays produce results; there's one Sunday in a 7-day span from Monday
+    expect(result.every((p) => p.tier === 3)).toBe(true);
+  });
+
+  it("does not mutate the source puzzles in the pool", () => {
+    const monday = new Date("2026-05-04T00:00:00Z");
+    const originalId = pool[1][0].id;
+    assignPuzzles([monday], pool);
+    expect(pool[1][0].id).toBe(originalId);
   });
 });

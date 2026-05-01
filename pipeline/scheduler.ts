@@ -29,3 +29,32 @@ export function scheduleDates(start: Date, count: number): Date[] {
     return d;
   });
 }
+
+export interface ScheduledPuzzle {
+  id: string;
+  scheduledDate: string;
+  tier: 1 | 2 | 3;
+  rule: { id: string; description: string };
+  witnesses: { value: number; inSet: boolean; clues: string[] }[];
+}
+
+export function assignPuzzles(
+  dates: Date[],
+  puzzlesByTier: Record<1 | 2 | 3, ScheduledPuzzle[]>
+): ScheduledPuzzle[] {
+  const indices: Record<1 | 2 | 3, number> = { 1: 0, 2: 0, 3: 0 };
+  const scheduled: ScheduledPuzzle[] = [];
+
+  for (const date of dates) {
+    const tier = tierForDate(date);
+    const pool = puzzlesByTier[tier];
+    if (pool.length === 0) continue;
+
+    const key = dateKey(date);
+    const base = pool[indices[tier] % pool.length];
+    scheduled.push({ ...base, id: key, scheduledDate: key });
+    indices[tier]++;
+  }
+
+  return scheduled;
+}
