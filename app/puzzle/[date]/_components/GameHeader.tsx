@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ScheduledPuzzle } from "@/pipeline/scheduler";
 import type { GameState } from "@/app/lib/gameState";
 
@@ -29,9 +30,10 @@ function formatDate(dateStr: string): string {
 type Props = {
   puzzle: ScheduledPuzzle;
   state: GameState;
+  onHowToPlay: () => void;
 };
 
-export function GameHeader({ puzzle, state }: Props) {
+export function GameHeader({ puzzle, state, onHowToPlay }: Props) {
   const solvedCount = state.witnesses.filter((w) => w.solved).length;
   const totalCount = puzzle.witnesses.length;
   const isCompleted = !!state.completedAt;
@@ -39,9 +41,17 @@ export function GameHeader({ puzzle, state }: Props) {
   return (
     <header className="flex items-center justify-between py-4 border-b border-zinc-200 dark:border-zinc-800">
       <div>
-        <span className="text-xs font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase">
-          Proof
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase">
+            Proof
+          </span>
+          <Link
+            href="/archive"
+            className="text-xs text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+          >
+            Archive
+          </Link>
+        </div>
         <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
           {formatDate(puzzle.scheduledDate)}
         </h1>
@@ -62,6 +72,13 @@ export function GameHeader({ puzzle, state }: Props) {
         >
           {TIER_LABELS[puzzle.tier]}
         </span>
+        <button
+          onClick={onHowToPlay}
+          className="w-6 h-6 flex items-center justify-center rounded-full border border-zinc-300 dark:border-zinc-600 text-xs text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          aria-label="How to play"
+        >
+          ?
+        </button>
       </div>
     </header>
   );

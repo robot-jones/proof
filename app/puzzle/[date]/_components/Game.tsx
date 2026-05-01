@@ -9,6 +9,9 @@ import { WitnessHistory } from "./WitnessHistory";
 import { WitnessView } from "./WitnessView";
 import { RulePicker } from "./RulePicker";
 import { CompletedView } from "./CompletedView";
+import { HowToPlay } from "./HowToPlay";
+
+const HOW_TO_PLAY_KEY = "proof-howtoplay-seen";
 
 function storageKey(puzzleId: string) {
   return `proof-game-${puzzleId}`;
@@ -24,8 +27,9 @@ export function Game({ puzzle, rules }: Props) {
     initGameState(puzzle.id, puzzle.witnesses.length)
   );
   const [hydrated, setHydrated] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
 
-  // Load saved state from localStorage after mount to avoid hydration mismatch
+  // Load saved state and check first-visit on mount
   useEffect(() => {
     const saved = localStorage.getItem(storageKey(puzzle.id));
     if (saved) {
@@ -33,8 +37,16 @@ export function Game({ puzzle, rules }: Props) {
         setState(JSON.parse(saved));
       } catch {}
     }
+    if (!localStorage.getItem(HOW_TO_PLAY_KEY)) {
+      setShowHowToPlay(true);
+    }
     setHydrated(true);
   }, [puzzle.id]);
+
+  function dismissHowToPlay() {
+    localStorage.setItem(HOW_TO_PLAY_KEY, "1");
+    setShowHowToPlay(false);
+  }
 
   // Persist state on every change
   useEffect(() => {
@@ -123,7 +135,8 @@ export function Game({ puzzle, rules }: Props) {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
-      <GameHeader puzzle={puzzle} state={state} />
+      {showHowToPlay && <HowToPlay onDismiss={dismissHowToPlay} />}
+      <GameHeader puzzle={puzzle} state={state} onHowToPlay={() => setShowHowToPlay(true)} />
 
       {state.completedAt ? (
         <CompletedView puzzle={puzzle} state={state} />

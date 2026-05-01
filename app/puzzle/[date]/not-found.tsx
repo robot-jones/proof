@@ -10,12 +10,20 @@ export default function NotFound() {
         <p className="text-zinc-500 dark:text-zinc-400">
           This puzzle hasn&apos;t been scheduled yet.
         </p>
-        <Link
-          href="/"
-          className="inline-block mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-100 underline underline-offset-4"
-        >
-          Go to today&apos;s puzzle
-        </Link>
+        <div className="flex flex-col items-center gap-2 mt-2">
+          <Link
+            href="/"
+            className="text-sm font-medium text-zinc-900 dark:text-zinc-100 underline underline-offset-4"
+          >
+            Go to today&apos;s puzzle
+          </Link>
+          <Link
+            href="/archive"
+            className="text-sm text-zinc-500 dark:text-zinc-400 underline underline-offset-4"
+          >
+            Browse the archive
+          </Link>
+        </div>
       </div>
     </div>
   );
