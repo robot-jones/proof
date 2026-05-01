@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, readdirSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from "fs";
 import { join } from "path";
 import type { ScheduledPuzzle } from "./scheduler";
 
@@ -34,4 +34,21 @@ export function saveScheduledPuzzles(
     const path = join(outputDir, `${puzzle.id}.json`);
     writeFileSync(path, JSON.stringify(puzzle, null, 2));
   }
+}
+
+export function loadScheduledPuzzle(
+  dateKey: string,
+  scheduledDir: string
+): ScheduledPuzzle | null {
+  const path = join(scheduledDir, `${dateKey}.json`);
+  if (!existsSync(path)) return null;
+  return JSON.parse(readFileSync(path, "utf-8")) as ScheduledPuzzle;
+}
+
+export function listScheduledDates(scheduledDir: string): string[] {
+  if (!existsSync(scheduledDir)) return [];
+  return readdirSync(scheduledDir)
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => f.replace(".json", ""))
+    .sort();
 }
