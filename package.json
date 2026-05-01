@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "generate": "tsx scripts/generatePuzzles.ts"
+    "generate": "tsx scripts/generatePuzzles.ts",
+    "admin": "tsx scripts/admin.ts"
   },
   "dependencies": {
     "next": "16.2.4",
