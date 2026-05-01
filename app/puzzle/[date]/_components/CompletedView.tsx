@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import type { ScheduledPuzzle } from "@/pipeline/scheduler";
 import type { GameState } from "@/app/lib/gameState";
 import { computeScore } from "@/app/lib/scoring";
+import { generateShareCard } from "@/app/lib/shareCard";
 
 type Props = {
   puzzle: ScheduledPuzzle;
@@ -11,6 +13,15 @@ type Props = {
 
 export function CompletedView({ puzzle, state }: Props) {
   const score = computeScore(puzzle, state);
+  const shareText = generateShareCard(puzzle, state, score);
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(shareText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   return (
     <div className="space-y-4">
@@ -148,6 +159,18 @@ export function CompletedView({ puzzle, state }: Props) {
             </div>
           </div>
         )}
+      </div>
+      {/* Share card */}
+      <div className="rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 p-4 space-y-3">
+        <pre className="text-sm font-mono leading-relaxed whitespace-pre text-zinc-800 dark:text-zinc-200 select-all">
+          {shareText}
+        </pre>
+        <button
+          onClick={handleCopy}
+          className="w-full py-2 text-sm font-medium rounded-lg border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+        >
+          {copied ? "Copied!" : "Copy"}
+        </button>
       </div>
     </div>
   );
