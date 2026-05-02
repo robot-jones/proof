@@ -5,7 +5,7 @@ import {
   saveScheduledPuzzles,
   listScheduledDates,
 } from "../pipeline/puzzleStore";
-import { scheduleDates, assignPuzzles, dateKey } from "../pipeline/scheduler";
+import { scheduleDates, assignPuzzles } from "../pipeline/scheduler";
 
 const BANK_DIR = join(process.cwd(), "pipeline/puzzleBank");
 const SCHEDULED_DIR = join(process.cwd(), "pipeline/scheduled");

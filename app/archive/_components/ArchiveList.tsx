@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, startTransition } from "react";
 import Link from "next/link";
 import type { ScheduledPuzzle } from "@/pipeline/scheduler";
 
@@ -46,7 +46,7 @@ export function ArchiveList({ puzzles }: Props) {
         }
       } catch {}
     }
-    setCompletedIds(completed);
+    startTransition(() => setCompletedIds(completed));
   }, [puzzles]);
 
   if (puzzles.length === 0) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, startTransition } from "react";
 import type { ScheduledPuzzle } from "@/pipeline/scheduler";
 import type { RuleInfo } from "@/app/lib/ruleList";
 import { type GameState, initGameState } from "@/app/lib/gameState";
@@ -34,13 +34,14 @@ export function Game({ puzzle, rules }: Props) {
     const saved = localStorage.getItem(storageKey(puzzle.id));
     if (saved) {
       try {
-        setState(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        startTransition(() => setState(parsed));
       } catch {}
     }
     if (!localStorage.getItem(HOW_TO_PLAY_KEY)) {
-      setShowHowToPlay(true);
+      startTransition(() => setShowHowToPlay(true));
     }
-    setHydrated(true);
+    startTransition(() => setHydrated(true));
   }, [puzzle.id]);
 
   function dismissHowToPlay() {
